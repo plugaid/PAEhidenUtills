@@ -89,7 +89,10 @@ self.focus();
                 <!--{if $arrErr.mail_template_id}-->
                     <span class="attention"><!--{$arrErr.mail_template_id}--></span><br />
                 <!--{/if}-->
-                
+                    <select name="mail_template_id" style="<!--{$arrErr.mail_template_id|sfGetErrorColor}-->">
+                        <!--{html_options options=$arrMailTemplate selected=$arrForm.mail_template_id}-->
+                    </select>
+
             </td>
         </tr>
 </table>

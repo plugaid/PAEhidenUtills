@@ -40,6 +40,10 @@ class LC_Page_Plugin_PAEhidenUtills_Config extends LC_Page_Admin_Ex {
         $this->tpl_mode = $this->getMode();
         // 配送業者の取得
         $this->arrDeliv = SC_Helper_DB_Ex::sfGetIDValueList('dtb_deliv', 'deliv_id', 'name');
+        // メールテンプレート
+        $masterData = new SC_DB_MasterData_Ex();
+
+        $this->arrMailTemplate = $masterData->getMasterData('mtb_mail_template');
     }
 
     /**
@@ -147,13 +151,13 @@ class LC_Page_Plugin_PAEhidenUtills_Config extends LC_Page_Admin_Ex {
                 array('SPTAB_CHECK', 'NUM_CHECK', 'MAX_LENGTH_CHECK')
         );
         
-//        $objFormParam->addParam(
-//                '出荷完了メールテンプレート', 
-//                'mail_template_id', 
-//                INT_LEN, 
-//                'n', 
-//                array('SPTAB_CHECK', 'NUM_CHECK', 'MAX_LENGTH_CHECK')
-//        );
+        $objFormParam->addParam(
+                '出荷完了メールテンプレート',
+                'mail_template_id',
+                INT_LEN,
+                'n',
+                array('SPTAB_CHECK', 'NUM_CHECK', 'MAX_LENGTH_CHECK')
+        );
         
     }
     
