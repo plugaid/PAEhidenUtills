@@ -97,7 +97,12 @@ class PAEhidenUtills extends SC_Plugin_Base {
         $masterData->clearCache('mtb_mail_template');
         $masterData->clearCache('mtb_mail_tpl_path');
 
-        
+
+        // カラム追加
+        // お問い合わせ番号がなければ追加
+        SC_Helper_DB_Ex::sfColumnExists('dtb_shipping', 'plg_paehidenutills_toiban', 'varchar(64)', '', true);
+
+
 		
         // デフォルト設定
 		// 受注番号を含める
