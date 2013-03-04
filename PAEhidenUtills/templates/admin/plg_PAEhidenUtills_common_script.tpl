@@ -19,8 +19,11 @@
 <script type="text/javascript">
 jQuery(function(){
 
+<!--{if $smarty.const.PLUGIN_PAEHIDEN_IMPORT_FLG}-->
     $('li#navi-order ul:first li:last').after(
         '<li id="navi-order-plg_paehidenutills_import"><a href="<!--{$smarty.const.ROOT_URLPATH}--><!--{$smarty.const.ADMIN_DIR}-->order/plg_paehidenutills_import.php"><span>e飛伝II出荷履歴データのインポート</span></a></li>'
     );
+<!--{/if}-->
+
 });
 </script>
