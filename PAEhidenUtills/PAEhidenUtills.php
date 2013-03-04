@@ -305,8 +305,9 @@ class PAEhidenUtills extends SC_Plugin_Base {
      * @param array $arrData
      */
 	static function saveConfig($arrConfig){
-        
-        self::$arrConfig = $arrConfig + self::$arrConfig;
+        self::loadConfig();
+
+        self::$arrConfig = (array)$arrConfig + self::$arrConfig;
         
 		$objQuery =& SC_Query_Ex::getSingletonInstance();
         $data = array('free_field1' => serialize(self::$arrConfig));
