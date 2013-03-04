@@ -73,7 +73,7 @@ class PAEhidenUtills extends SC_Plugin_Base {
             $data = array(
                 'id' => $arrConfig['mail_template_id'],
                 'rank' => (int)$rank + 1,
-                'name' => 'mail_templates/order_mail.tpl',
+                'name' => 'mail_templates/plg_paehiddenutills_order_mail.tpl',
             );
             $objQuery->insert('mtb_mail_tpl_path', $data);
         }
@@ -217,6 +217,10 @@ class PAEhidenUtills extends SC_Plugin_Base {
     }
 
     function preProcess(LC_Page_EX $objPage) {
+        // 管理画面のテンプレート変数にプラグイン設定をセット
+        if (is_a($objPage, 'LC_Page_Admin')) {
+            $objPage->plg_paehidenutills_config = self::loadConfig();
+        }
         
     }
 
