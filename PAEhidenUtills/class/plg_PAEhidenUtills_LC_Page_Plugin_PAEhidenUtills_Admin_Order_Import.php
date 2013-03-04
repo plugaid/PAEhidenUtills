@@ -36,6 +36,15 @@ class LC_Page_Plugin_PAEhidenUtills_Admin_Order_Import extends LC_Page_Admin_Ex 
      */
     function init() {
         parent::init();
+
+        $this->plg_PAEhidenUtills_config = PAEhidenUtills::loadConfig();
+
+        // インポートに対応していない場合は受注トップに飛ばす
+        if (empty($this->plg_PAEhidenUtills_config['import_flg'])) {
+            SC_Response_Ex::sendRedirect(HTTP_URL . 'admin/order/');
+            eixt();
+        }
+
         $this->tpl_mainpage = PLUGIN_UPLOAD_REALDIR . 'PAEhidenUtills/templates/admin/order/plg_PAEhidenUtills_import.tpl';
         $this->tpl_mainno = 'order';
         $this->tpl_subno = 'index';
