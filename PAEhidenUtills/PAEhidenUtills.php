@@ -202,12 +202,13 @@ class PAEhidenUtills extends SC_Plugin_Base {
      * @param SC_Helper_Plugin $objHelperPlugin
      */
     function register(SC_Helper_Plugin $objHelperPlugin) {
-//        require_once CLASS_EX_REALDIR . 'db_extends/SC_DB_MasterData_Ex.php';
-        
-        
         // e飛伝Ⅱ用出荷データCSV出力フックポイント
         $objHelperPlugin->addAction('LC_Page_Admin_Order_action_after', array($this, 'afterActionAdminOrder'));
         $objHelperPlugin->addAction('prefilterTransform', array(&$this, 'prefilterTransform'), 1);
+
+        // 設定値を定数として定義する
+        $config = self::loadConfig();
+        define('PLUGIN_PAEHIDEN_IMPORT_FLG', empty($config['import_flg'])? 0: 1);
     }
 
     function preProcess(LC_Page_EX $objPage) {
@@ -259,8 +260,7 @@ class PAEhidenUtills extends SC_Plugin_Base {
                 break;
             case DEVICE_TYPE_ADMIN:
             default:
-                if(!empty($config['import_flg']) 
-						&& preg_match('/^LC_Page_Admin.*_Ex$/', $class_name)) {
+                if(preg_match('/^LC_Page_Admin.*_Ex$/', $class_name)) {
                     $content = file_get_contents($template_dir . 'admin/plg_PAEhidenUtills_common_script.tpl');
                     $objTransform->select('body')->appendChild($content);
                     $source = $objTransform->getHTML();
