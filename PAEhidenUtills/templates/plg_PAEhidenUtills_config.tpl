@@ -2,7 +2,7 @@
 
 <script type="text/javascript">//<![CDATA[
 self.moveTo(20,20);
-self.resizeTo(620, 720);
+self.resizeTo(620, 800);
 self.focus();
 //]]>
 </script>
