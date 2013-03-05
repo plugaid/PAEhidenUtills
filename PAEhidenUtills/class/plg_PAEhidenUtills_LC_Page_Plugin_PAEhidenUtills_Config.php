@@ -158,7 +158,15 @@ class LC_Page_Plugin_PAEhidenUtills_Config extends LC_Page_Admin_Ex {
                 'n',
                 array('SPTAB_CHECK', 'NUM_CHECK', 'MAX_LENGTH_CHECK')
         );
-        
+
+        $objFormParam->addParam(
+            'お荷物問い合わせサービス',
+            'toiban_url',
+            URL_LEN,
+            'n',
+            array('URL_CHECK', 'MAX_LENGTH_CHECK'),
+            'http://'
+        );
     }
     
     // 入力エラーチェック
