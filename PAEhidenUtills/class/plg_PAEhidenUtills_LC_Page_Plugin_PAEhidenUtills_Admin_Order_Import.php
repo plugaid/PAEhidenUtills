@@ -99,25 +99,38 @@ class LC_Page_Plugin_PAEhidenUtills_Admin_Order_Import extends LC_Page_Admin_Ex 
             $objFormParam->trimParam();
             $this->arrError = $this->lfCheckError($objFormParam);
             $this->arrForm = $objFormParam->getHashArray();
-//			$this->arrForm = $objFormParam->getFormParamList();
-			
-//	        $this->arrForm2 = $_POST;
-//			$this->lfCheckErrorBatch();
-//
-//            if (empty($this->arrError2)) {
-//                foreach ($this->arrForm2['number'] as $id => $number) {
-//                    if ($number) {
-//                       $this->doneDeliv(
-//							   $id,
-//							   $number,
-//							   $this->arrForm2['year'][$id],
-//							   $this->arrForm2['month'][$id],
-//							   $this->arrForm2['day'][$id],
-//							   $this->arrForm2['deliver_id'][$id]
-//						);
-//                    }
-//                }
-//            }
+
+
+
+            $arrRes = $this->loadOrder($this->arrForm['order_id']);
+            if ($arrRes) {
+                $arrOrder = array();
+                foreach ($arrRes as $res) {
+                    $arrOrder[$res['order_id']][$res['shipping_id']] = $res;
+                }
+                // データをセット
+                foreach ($this->arrForm['order_id'] as $index => $order_id) {
+                    $shipping_id = $this->arrForm['shipping_id'][$index];
+                    if (isset($arrOrder[$order_id][$shipping_id])) {
+                        $data = $arrOrder[$order_id][$shipping_id];
+                        $this->arrForm['shipping_name01'][$index] = $data['shipping_name01'];
+                        $this->arrForm['shipping_name02'][$index] = $data['shipping_name02'];
+                    } else {
+//                        // 消去
+//                        foreach (array_keys($this->arrForm) as $key) {
+//                            unset($this->arrForm[$key][$index]);
+//                        }
+                    }
+                }
+
+            }
+
+            if ($this->arrError) {
+                pr($this->arrError);
+            } else {
+                $this->doneImport();
+            }
+
 			break;
 
 
@@ -125,11 +138,20 @@ class LC_Page_Plugin_PAEhidenUtills_Admin_Order_Import extends LC_Page_Admin_Ex 
 
 //		$this->searchOrder();
 	}
-	
-	
 
 
-   /**
+    /**
+     * デストラクタ.
+     *
+     * @return void
+     */
+    function destroy() {
+        parent::destroy();
+    }
+
+
+
+    /**
      * CSVアップロードを実行します.
      *
      * @return void
@@ -254,16 +276,9 @@ class LC_Page_Plugin_PAEhidenUtills_Admin_Order_Import extends LC_Page_Admin_Ex 
 		if (!$arrID) {
 			return;
 		}
+
+        $arrRes = $this->loadOrder($arrID);
 		
-		$objQuery = &SC_Query_Ex::getSingletonInstance();
-		$arrRes = $objQuery->getAll('SELECT'
-				. ' *'
-				. ' FROM dtb_order'
-				. ' LEFT JOIN dtb_shipping USING(order_id)'
-				. ' WHERE dtb_order.order_id IN (' . implode(',', $arrID) . ')'
-				. ' AND dtb_order.del_flg=0'
-				. ' AND dtb_shipping.del_flg=0'
-		);
 		$index = 0;
 		foreach ($arrRes as $res) {
 			if (empty($search[$res['order_id']][$res['shipping_id']])) {
@@ -283,17 +298,38 @@ class LC_Page_Plugin_PAEhidenUtills_Admin_Order_Import extends LC_Page_Admin_Ex 
 			$index ++;
 		}
 	}
-	
+
+
+
+    function doneImport() {
+
+    }
+
 
 
     /**
-     * デストラクタ.
+     * 受注情報を返す
      *
-     * @return void
+     * @param $arrID
+     * @return array
      */
-    function destroy() {
-        parent::destroy();
+    function loadOrder($arrID) {
+        if (empty($arrID)) {
+            return;
+        }
+        $arrID = array_map('intval', $arrID);
+        $objQuery = &SC_Query_Ex::getSingletonInstance();
+        $arrRes = $objQuery->getAll('SELECT'
+                . ' *'
+                . ' FROM dtb_order'
+                . ' LEFT JOIN dtb_shipping USING(order_id)'
+                . ' WHERE dtb_order.order_id IN (' . implode(',', $arrID) . ')'
+                . ' AND dtb_order.del_flg=0'
+                . ' AND dtb_shipping.del_flg=0'
+        );
+        return $arrRes;
     }
+
 
     /**
      * パラメーター情報の初期化を行う.
@@ -309,9 +345,11 @@ class LC_Page_Plugin_PAEhidenUtills_Admin_Order_Import extends LC_Page_Admin_Ex 
         $objFormParam->addParam('発送日月', 'shipping_commit_month', INT_LEN, 'n', array('MAX_LENGTH_CHECK', 'NUM_CHECK'));
         $objFormParam->addParam('発送日日', 'shipping_commit_day', INT_LEN, 'n', array('MAX_LENGTH_CHECK', 'NUM_CHECK'));
 
-        $objFormParam->addParam('お問い合わせ番号', 'plg_paehidenutills_toiban', 16, 'n', array('MAX_LENGTH_CHECK', 'ALNUM_CHECK'));
+        $objFormParam->addParam('お問い合わせ番号', 'plg_paehidenutills_toiban', 2, 'n', array('MAX_LENGTH_CHECK', 'ALNUM_CHECK'));
 		
         $objFormParam->addParam('メール設定', 'mail_template_id', INT_LEN, 'n', array('MAX_LENGTH_CHECK', 'NUM_CHECK'));
+
+        $objFormParam->addParam('チェック', 'check', INT_LEN, 'n', array('MAX_LENGTH_CHECK', 'NUM_CHECK'));
 
 //        $objFormParam->addParam('対応状況', 'search_order_status', INT_LEN, 'n', array('MAX_LENGTH_CHECK', 'NUM_CHECK'));
 //        $objFormParam->addParam('注文者 お名前', 'search_order_name', STEXT_LEN, 'KVa', array('MAX_LENGTH_CHECK'));
