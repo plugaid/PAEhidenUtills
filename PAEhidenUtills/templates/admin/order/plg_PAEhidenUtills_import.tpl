@@ -47,7 +47,16 @@
 	<table>
 		<thead>
 			<tr>
-				<th style="width: 30px;"><a href="javascirpt:void(0)" id="plg_paehiden_batch">一括</a></th><th style="width: 30px;">受注ID</th><th>発送先名</th><th>お問い合わせ番号</th><th>発送日</th><th>発送完了メール</th>
+				<th style="width: 30px;"><a href="javascirpt:void(0)" id="plg_paehiden_batch">一括</a></th>
+                <th style="width: 30px;">受注ID</th>
+                <th>発送先名</th>
+                <th>お問い合わせ番号</th>
+                <th>発送日</th>
+
+<!--{if $plg_paehidenutills_config.mail_flg}-->
+                <th>発送完了メール</th>
+<!--{/if}-->
+
 			</tr>
 		</thead>
 		<tbody>
@@ -68,7 +77,7 @@
 						   value="<!--{$order_id|h}-->" />
 					<input type="hidden" 
 						   name="shipping_id[<!--{$index}-->]" 
-						   value="<!--{$shipping_id|h}-->" />
+						   value="<!--{$arrForm.shipping_id[$index]|h}-->" />
 				</td>
 				<td>
 					<!--{$arrForm.shipping_name01[$index]|h}--><!--{$arrForm.shipping_name02[$index]|h}-->様
@@ -94,15 +103,19 @@
 <option value="">--</option>
 <!--{html_options options=$arrDay selected=$arrForm.shipping_commit_day[$index]|default:$day}-->
 </select>日
-					
 
 				</td>
+
+<!--{if $plg_paehidenutills_config.mail_flg}-->
+
 				<td>
 					<select name="mail_template_id[<!--{$index}-->]">
 						<option value="">送信しない</option>
 	                    <!--{html_options options=$arrMailTemplate selected=$arrForm.mail_template_id[$index]}-->
 					</select>
 				</td>
+
+<!--{/if}-->
 			</tr>
 	
 	<!--{/foreach}-->
