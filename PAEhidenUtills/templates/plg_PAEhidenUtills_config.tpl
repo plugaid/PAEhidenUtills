@@ -72,6 +72,15 @@ self.focus();
                 </label>
             </td>
         </tr>
+    <tr>
+        <th>お荷物問い合わせサービスURL</th>
+        <td>
+        <!--{if $arrErr.toiban_url}-->
+            <span class="attention"><!--{$arrErr.toiban_url}--></span><br />
+                <!--{/if}-->
+            <input type="text" name="toiban_url" value="<!--{$arrForm.toiban_url|h}-->" style="<!--{if $arrErr.toiban_url != ""}-->background-color: <!--{$smarty.const.ERR_COLOR}-->;<!--{/if}-->" size="40" class="box40" />
+        </td>
+    </tr>
        <tr>
             <th>出荷完了メールを自動で送信する</th>
             <td>
