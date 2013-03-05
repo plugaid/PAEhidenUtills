@@ -73,7 +73,7 @@ class PAEhidenUtills extends SC_Plugin_Base {
             $data = array(
                 'id' => $arrConfig['mail_template_id'],
                 'rank' => (int)$rank + 1,
-                'name' => 'mail_templates/plg_paehiddenutills_order_mail.tpl',
+                'name' => 'mail_templates/plg_paehidenutills_order_mail.tpl',
             );
             $objQuery->insert('mtb_mail_tpl_path', $data);
         }
@@ -116,7 +116,9 @@ class PAEhidenUtills extends SC_Plugin_Base {
 		// 出荷完了メールを自動で送信する
 		$arrConfig['mail_flg'] = 1;
 
-		
+        // お荷物問い合わせサービス
+        $arrConfig['toiban_url'] = 'http://k2k.sagawa-exp.co.jp/p/sagawa/web/okurijoinput.jsp';
+
 		// 対応する配送業者設定
 		$arrConfig['deliv_id'] = array();
 		// 配送業者の取得
