@@ -211,7 +211,10 @@ class PAEhidenUtills extends SC_Plugin_Base {
     function register(SC_Helper_Plugin $objHelperPlugin) {
         // e飛伝Ⅱ用出荷データCSV出力フックポイント
         $objHelperPlugin->addAction('LC_Page_Admin_Order_action_after', array($this, 'afterActionAdminOrder'));
+        $objHelperPlugin->addAction('LC_Page_Admin_Order_Edit_action_before', array($this, 'beforeActionAdminOrderEdit'));
+        $objHelperPlugin->addAction('LC_Page_Admin_Order_Edit_action_after', array($this, 'afterActionAdminOrderEdit'));
         $objHelperPlugin->addAction('prefilterTransform', array(&$this, 'prefilterTransform'), 1);
+        $objHelperPlugin->addAction('SC_FormParam_construct', array(&$this, 'addFormParam'), 1);
 
         // 設定値を定数として定義する
         $config = self::loadConfig();
@@ -250,6 +253,103 @@ class PAEhidenUtills extends SC_Plugin_Base {
     		exit;
         }
     }
+    /**
+     * 受注編集画面beforeフック処理
+     * @param LC_Page_Admin_Order_Edit_EX $objPage
+     */
+    function beforeActionAdminOrderEdit(LC_Page_Admin_Order_Edit_EX $objPage) {
+//        if (!empty($objPage->arrShippingKeys)) {
+//            if (!in_array('shipping_commit_date', $objPage->arrShippingKeys)) {
+//                $objPage->arrShippingKeys[] = 'shipping_commit_date';
+//            }
+//            if (!in_array('plg_paehidenutills_toiban', $objPage->arrShippingKeys)) {
+//                $objPage->arrShippingKeys[] = 'plg_paehidenutills_toiban';
+//            }
+//        }
+    }
+
+    /**
+     * 受注編集画面afterフック処理
+     * @param LC_Page_Admin_Order_Edit_EX $objPage
+     */
+    function afterActionAdminOrderEdit(LC_Page_Admin_Order_Edit_EX $objPage) {
+        if (empty($objPage->arrAllShipping)) {
+            return;
+        }
+        if (empty($objPage->arrForm['order_id']['value'])) {
+            return;
+        } else {
+            $order_id = $objPage->arrForm['order_id']['value'];
+        }
+
+        // 追加した内容を取得する
+        $objQuery = SC_Query_Ex::getSingletonInstance();
+        $arrShippingAdditonal = array();
+        if ($order_id) {
+            $res = $objQuery->select('shipping_id, shipping_commit_date, plg_paehidenutills_toiban', 'dtb_shipping', 'order_id=?', array($order_id));
+            foreach ($res as $row) {
+                $arrShippingAdditonal[$row['shipping_id']] = $row;
+            }
+        }
+
+
+        if ($objPage->arrAllShipping) {
+            foreach ($objPage->arrAllShipping as $key => $shipping) {
+                if (isset($arrShippingAdditonal[$shipping['shipping_id']])) {
+                    $objPage->arrAllShipping[$key]['shipping_commit_date'] = $arrShippingAdditonal[$shipping['shipping_id']]['shipping_commit_date'];
+                    $objPage->arrAllShipping[$key]['plg_paehidenutills_toiban'] = $arrShippingAdditonal[$shipping['shipping_id']]['plg_paehidenutills_toiban'];
+                }
+            }
+        }
+        $json = json_encode($objPage->arrAllShipping);
+
+        // 発送日、問い合わせ番号差し込みようのJSを追加
+
+        $objPage->tpl_onload .= "
+
+;(function(arrShipping){
+    if (!arrShipping || typeof arrShipping.length == 'undefined' || !arrShipping.length) {
+        return;
+    }
+    $('select[name^=shipping_date_year]').each(function(index){
+        var objTr = $(this).parents('tr');
+        if (!objTr.size()) {
+            return;
+        }
+
+        if (index >= arrShipping.length) {
+            return;
+        }
+        var shipping = arrShipping[index];
+
+        var newTr = $('<tr />');
+        newTr.append($('<th>発送日</th>'));
+        newTr.append($('<td />').text(shipping.shipping_commit_date?shipping.shipping_commit_date: ' '));
+        objTr.after(newTr);
+
+        newTr = $('<tr />');
+        newTr.append($('<th>お問い合わせ番号</th>'));
+        newTr.append($('<td />').text(shipping.plg_paehidenutills_toiban?shipping.plg_paehidenutills_toiban: ' '));
+        objTr.after(newTr);
+    });
+})({$json});
+
+        ";
+    }
+
+
+    /**
+     * @param $calss_name
+     * @param SC_FormParam $objFormParam
+     */
+    function addFormParam($calss_name, SC_FormParam $objFormParam) {
+//        if (strpos($calss_name, 'LC_Page_Admin_Order_Edit') !== false) {
+//            // 管理画面 受注編集画面
+//            $objFormParam->addParam('発送日', 'shipping_commit_date', INT_LEN, 'n', array('EXIST_CHECK', 'NUM_COUNT_CHECK', 'NUM_CHECK'));
+//            $objFormParam->addParam('お問い合わせ番号', 'plg_paehidenutills_toiban', 12, 'n', array('NUM_COUNT_CHECK', 'NUM_CHECK'));
+//        }
+    }
+
 
     /**
      * 
@@ -271,12 +371,12 @@ class PAEhidenUtills extends SC_Plugin_Base {
                 break;
             case DEVICE_TYPE_ADMIN:
             default:
-                if(preg_match('/^LC_Page_Admin.*_Ex$/', $class_name)) {
+
+                if (is_a($objPage, 'LC_Page_Admin')) {
                     $content = file_get_contents($template_dir . 'admin/plg_PAEhidenUtills_common_script.tpl');
                     $objTransform->select('body')->appendChild($content);
-                    $source = $objTransform->getHTML();
+
                 }
-                
                 
                 
                 // 受注一覧画面
