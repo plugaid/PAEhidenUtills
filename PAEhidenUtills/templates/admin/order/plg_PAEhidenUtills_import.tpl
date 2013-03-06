@@ -40,9 +40,32 @@
         </tr>
     </table>
 
+<!--{if $arrDoneOrder}-->
+<p>以下の発送について発送完了処理を行いました。</p>
+<table>
+<thead>
+<tr>
+<th style="width: 30px;">受注ID</th>
+<th>発送先名</th>
+<th>お問い合わせ番号</th>
+<th>発送日</th>
+</tr>
+</thead>
+<tbody>
+    <!--{foreach from=$arrDoneOrder item=item name=loop}-->
+    <tr>
+        <td><!--{$item.order_id|h}--></td>
+        <td><!--{$item.shipping_name01|h}--><!--{$item.shipping_name02|h}-->様</td>
+        <td><!--{$item.plg_paehidenutills_toiban|h}--></td>
+        <td><!--{$item.shipping_commit_date|h}--></td>
+    </tr>
+    <!--{/foreach}-->
+</tbody>
+</table>
+<!--{/if}-->
 
 <!--{if $arrForm}-->
-	<p>内容を確認して「一括処理を行う」ボタンを押してください。</p>
+	<p>内容を確認して「一括処理を行う」ボタンを押してください。    <span class="attention">チェックを外すと完了処理をされません</span></p>
 
 	<table>
 		<thead>
@@ -83,12 +106,20 @@
 					<!--{$arrForm.shipping_name01[$index]|h}--><!--{$arrForm.shipping_name02[$index]|h}-->様
 				</td>
 				<td>
+                    <!--{if $arrError.plg_paehidenutills_toiban[$index]}-->
+                    <p class="attention"><!--{$arrError.plg_paehidenutills_toiban[$index]}--></p>
+                    <!--{/if}-->
 					<input type="text" 
 						   name="plg_paehidenutills_toiban[<!--{$index}-->]" 
 						   value="<!--{$arrForm.plg_paehidenutills_toiban[$index]|h}-->"
-						   size="20" class="box20" />
+						   size="20" class="box20" maxlength="12" style="<!--{$arrError.plg_paehidenutills_toiban[$index]|sfGetErrorColor}-->" />
 				</td>
-				<td>
+				<td style="<!--{$arrError.shipping_commit_year[$index]|sfGetErrorColor}-->">
+
+                <!--{if $arrError.shipping_commit_year[$index]}-->
+                    <p class="attention"><!--{$arrError.shipping_commit_year[$index]}--></p>
+                <!--{/if}-->
+
 <select name="shipping_commit_year[<!--{$index}-->]">
 <option value="">----</option>
 <!--{html_options options=$arrYear selected=$arrForm.shipping_commit_year[$index]|default:$year}-->
@@ -108,7 +139,10 @@
 
 <!--{if $plg_paehidenutills_config.mail_flg}-->
 
-				<td>
+				<td style="<!--{$arrError.mail_template_id[$index]|sfGetErrorColor}-->">
+                <!--{if $arrError.mail_template_id[$index]}-->
+                    <p class="attention"><!--{$arrError.mail_template_id[$index]}--></p>
+                <!--{/if}-->
 					<select name="mail_template_id[<!--{$index}-->]">
 						<option value="">送信しない</option>
 	                    <!--{html_options options=$arrMailTemplate selected=$arrForm.mail_template_id[$index]}-->
